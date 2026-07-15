@@ -39,6 +39,14 @@ function refineAcademicQuery(
   }
 }
 
+function emptyValueToUndefined(value: unknown) {
+  if (value === null || (typeof value === "string" && value.trim() === "")) {
+    return undefined;
+  }
+
+  return value;
+}
+
 export const textbookQuerySchema = z
   .object({
     keyword: z.string().trim().optional(),
@@ -50,7 +58,10 @@ export const textbookQuerySchema = z
 
 export const createTextbookSchema = z
   .object({
-    isbn: z.string().trim().min(10, "isbn は10文字以上です").max(20, "isbn は20文字以内です"),
+    isbn: z.preprocess(
+      emptyValueToUndefined,
+      z.string().trim().min(10, "isbn は10文字以上です").max(20, "isbn は20文字以内です").optional()
+    ),
     title: z.string().trim().min(1, "title は必須です").max(200, "title は200文字以内です"),
     publisher: z.string().trim().min(1, "publisher は必須です").max(120, "publisher は120文字以内です"),
     listPrice: z.number().int("listPrice は整数です").min(0, "listPrice は0以上です"),
@@ -58,7 +69,10 @@ export const createTextbookSchema = z
     faculty: z.string().trim().min(1, "faculty は必須です").max(80, "faculty は80文字以内です"),
     department: z.string().trim().min(1, "department は必須です").max(80, "department は80文字以内です"),
     academicYear: z.number().int("academicYear は整数です").min(1, "academicYear は1以上です").max(6, "academicYear は6以下です"),
-    imageUrl: z.string().trim().min(1, "教科書画像は必須です").max(2_000_000, "画像データが大きすぎます")
+    imageUrl: z.preprocess(
+      emptyValueToUndefined,
+      z.string().trim().max(2_000_000, "画像データが大きすぎます").optional()
+    )
   })
   .superRefine((data, ctx) => {
     if (!isAcademicFaculty(data.faculty)) {

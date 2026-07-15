@@ -96,7 +96,7 @@ model PaymentSetting {
 
 model TextbookMaster {
   id           String   @id @default(cuid())
-  isbn         String   @unique
+  isbn         String?  @unique
   title        String
   publisher    String
   listPrice    Int
@@ -104,7 +104,7 @@ model TextbookMaster {
   faculty      String
   department   String
   academicYear Int
-  imageUrl     String
+  imageUrl     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

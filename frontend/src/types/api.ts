@@ -54,7 +54,7 @@ export type AuthUser = Pick<User, "uid" | "email" | "name">;
 
 export type Textbook = {
   id: string;
-  isbn: string;
+  isbn: string | null;
   title: string;
   publisher: string;
   listPrice: number;
@@ -62,7 +62,7 @@ export type Textbook = {
   faculty: string;
   department: string;
   academicYear: number;
-  imageUrl: string;
+  imageUrl: string | null;
   createdAt?: string;
   updatedAt?: string;
 };

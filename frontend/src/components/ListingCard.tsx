@@ -9,7 +9,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
     <article className="panel flex h-full flex-col overflow-hidden">
       <div className="aspect-[4/3] bg-slate-100">
         <img
-          src={listing.imageUrl || listing.textbook.imageUrl}
+          src={listing.imageUrl || listing.textbook.imageUrl || undefined}
           alt={`${listing.textbook.title}の商品画像`}
           className="h-full w-full object-cover"
           loading="lazy"

@@ -330,6 +330,53 @@ describe("教科書マスタ", () => {
     expect(response.body.department).toBe("経済学科");
   });
 
+  it("各学部の学科共通で登録できる", async () => {
+    await createUser("common-department@keio.jp");
+    const token = await login("common-department@keio.jp");
+
+    const response = await request(app)
+      .post("/textbooks")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        isbn: "9781234567889",
+        title: "法学部共通演習",
+        publisher: "テスト出版",
+        listPrice: 2600,
+        courseName: "法学基礎",
+        faculty: "法学部",
+        department: "学科共通",
+        academicYear: 1,
+        imageUrl: "/images/textbooks/law.jpg"
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.department).toBe("学科共通");
+  });
+
+  it("ISBNと教科書画像を空欄で登録できる", async () => {
+    await createUser("optional-master-fields@keio.jp");
+    const token = await login("optional-master-fields@keio.jp");
+
+    const response = await request(app)
+      .post("/textbooks")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        isbn: "",
+        title: "画像なし教科書",
+        publisher: "テスト出版",
+        listPrice: 1800,
+        courseName: "総合講座",
+        faculty: "文学部",
+        department: "学科共通",
+        academicYear: 1,
+        imageUrl: ""
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.isbn).toBeNull();
+    expect(response.body.imageUrl).toBeNull();
+  });
+
   it("許可されていない学部は登録できない", async () => {
     await createUser("master-owner@keio.jp");
     const token = await login("master-owner@keio.jp");

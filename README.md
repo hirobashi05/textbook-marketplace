@@ -267,6 +267,8 @@ pnpm test
 - 許可する慶應メールドメインは `UNIVERSITY_EMAIL_DOMAINS` で管理します。
 - `suspended` / `deleted` ユーザーは出品・購入できません。
 - 出品には `imageUrl` を必須にし、一覧・詳細・履歴に商品画像を表示します。
+- 教科書マスタの ISBN と画像は任意です。画像なしのマスタを選んだ場合も、出品時の商品画像は必須です。
+- 学科は各学部の所属学科に加え、学部共通科目向けの「学科共通」と「その他学科」から選択できます。
 - ポイント購入は `credit_card` / `convenience_store` / `campus_coop` のモック決済として実装しています。
 - 購入後は注文の `shippingStatus` を `requested` にし、売り手のマイページに配送先住所を表示します。
 - 出品取り下げは物理削除せず `cancelled` へ更新します。

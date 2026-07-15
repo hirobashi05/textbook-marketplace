@@ -118,6 +118,7 @@ type ImageUploadFieldProps = {
   isUploading: boolean;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
+  optional?: boolean;
 };
 
 function ImageUploadField({
@@ -126,12 +127,21 @@ function ImageUploadField({
   previewUrl,
   isUploading,
   onChange,
-  required
+  required,
+  optional
 }: ImageUploadFieldProps) {
   return (
     <div className="space-y-3">
       <div className="field">
-        <label htmlFor={htmlFor}>{label}</label>
+        <label htmlFor={htmlFor}>
+          {label}
+          {required && (
+            <span className="ml-1 text-red-600" aria-label="必須">
+              *
+            </span>
+          )}
+          {optional && <span className="ml-1 text-xs font-normal text-slate-500">[任意]</span>}
+        </label>
         <input
           id={htmlFor}
           type="file"
@@ -181,8 +191,8 @@ export function CreateListingPage() {
         setTextbooks(items);
         if (items[0]) {
           setMasterId(items[0].id);
-          setImageUrl(items[0].imageUrl);
-          setListingPreviewUrl(items[0].imageUrl);
+          setImageUrl(items[0].imageUrl ?? "");
+          setListingPreviewUrl(items[0].imageUrl ?? "");
         }
       })
       .catch((caught) => {
@@ -314,8 +324,8 @@ export function CreateListingPage() {
       const textbook = await api.createTextbook(newTextbook);
       setTextbooks((current) => [textbook, ...current]);
       setMasterId(textbook.id);
-      setImageUrl(textbook.imageUrl);
-      setListingPreviewUrl(textbook.imageUrl);
+      setImageUrl(textbook.imageUrl ?? "");
+      setListingPreviewUrl(textbook.imageUrl ?? "");
       setNotice("教科書マスタを追加しました");
       setNewTextbook(emptyTextbookForm);
       setTextbookPreviewUrl("");
@@ -352,11 +362,17 @@ export function CreateListingPage() {
 
           {selectedTextbook && (
             <div className="grid gap-4 rounded-lg border border-line bg-slate-50 p-4 text-sm sm:grid-cols-[120px_1fr]">
-              <img
-                src={selectedTextbook.imageUrl}
-                alt={`${selectedTextbook.title}の教科書画像`}
-                className="h-32 w-full rounded-lg object-cover sm:w-28"
-              />
+              {selectedTextbook.imageUrl ? (
+                <img
+                  src={selectedTextbook.imageUrl}
+                  alt={`${selectedTextbook.title}の教科書画像`}
+                  className="h-32 w-full rounded-lg object-cover sm:w-28"
+                />
+              ) : (
+                <div className="flex h-32 w-full items-center justify-center rounded-lg border border-dashed border-line bg-white text-slate-400 sm:w-28">
+                  <ImageIcon size={24} aria-label="画像未登録" />
+                </div>
+              )}
               <div>
                 <p className="font-bold">{selectedTextbook.title}</p>
                 <p className="mt-1 text-slate-600">
@@ -427,7 +443,7 @@ export function CreateListingPage() {
             htmlFor="isbn"
             value={newTextbook.isbn}
             onChange={(event) => setNewTextbook((current) => ({ ...current, isbn: event.target.value }))}
-            required
+            optional
           />
 
           <TextInput
@@ -516,13 +532,13 @@ export function CreateListingPage() {
             previewUrl={textbookPreviewUrl}
             isUploading={isTextbookImageUploading}
             onChange={handleTextbookImageChange}
-            required={!newTextbook.imageUrl}
+            optional
           />
 
           <button
             type="submit"
             className="btn-secondary w-full"
-            disabled={isTextbookImageUploading || !newTextbook.imageUrl}
+            disabled={isTextbookImageUploading}
           >
             <Plus size={17} aria-hidden />
             追加する

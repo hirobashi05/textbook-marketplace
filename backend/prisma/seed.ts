@@ -9,6 +9,14 @@ import {
 } from "@prisma/client";
 import { prisma } from "../src/utils/prisma.js";
 
+function requireSeedImage(textbook: { imageUrl: string | null }) {
+  if (!textbook.imageUrl) {
+    throw new Error("Seed textbook image is required for a listing");
+  }
+
+  return textbook.imageUrl;
+}
+
 async function main() {
   await prisma.pointTransaction.deleteMany();
   await prisma.pointPurchase.deleteMany();
@@ -155,7 +163,7 @@ async function main() {
         sellingPrice: 1200,
         condition: ListingCondition.GOOD,
         description: "表紙に少し擦れがあります。",
-        imageUrl: textbooks[0].imageUrl,
+        imageUrl: requireSeedImage(textbooks[0]),
         status: ListingStatus.AVAILABLE
       }
     }),
@@ -166,7 +174,7 @@ async function main() {
         sellingPrice: 900,
         condition: ListingCondition.HAS_WRITING,
         description: "重要箇所にマーカーがあります。",
-        imageUrl: textbooks[0].imageUrl,
+        imageUrl: requireSeedImage(textbooks[0]),
         status: ListingStatus.AVAILABLE
       }
     }),
@@ -177,7 +185,7 @@ async function main() {
         sellingPrice: 1000,
         condition: ListingCondition.FAIR,
         description: "数ページに折れがあります。",
-        imageUrl: textbooks[1].imageUrl,
+        imageUrl: requireSeedImage(textbooks[1]),
         status: ListingStatus.AVAILABLE
       }
     }),
@@ -188,7 +196,7 @@ async function main() {
         sellingPrice: 1800,
         condition: ListingCondition.GOOD,
         description: "演習問題の書き込みはありません。",
-        imageUrl: textbooks[2].imageUrl,
+        imageUrl: requireSeedImage(textbooks[2]),
         status: ListingStatus.AVAILABLE
       }
     }),
@@ -199,7 +207,7 @@ async function main() {
         sellingPrice: 1500,
         condition: ListingCondition.NEW,
         description: "未使用です。",
-        imageUrl: textbooks[3].imageUrl,
+        imageUrl: requireSeedImage(textbooks[3]),
         status: ListingStatus.AVAILABLE
       }
     }),
@@ -210,7 +218,7 @@ async function main() {
         sellingPrice: 800,
         condition: ListingCondition.POOR,
         description: "カバーに破れがあります。",
-        imageUrl: textbooks[4].imageUrl,
+        imageUrl: requireSeedImage(textbooks[4]),
         status: ListingStatus.CANCELLED
       }
     }),
@@ -221,7 +229,7 @@ async function main() {
         sellingPrice: 1300,
         condition: ListingCondition.GOOD,
         description: "授業で一学期だけ使用しました。",
-        imageUrl: textbooks[4].imageUrl,
+        imageUrl: requireSeedImage(textbooks[4]),
         status: ListingStatus.SOLD
       }
     }),
@@ -232,7 +240,7 @@ async function main() {
         sellingPrice: 1600,
         condition: ListingCondition.FAIR,
         description: "背表紙に使用感があります。",
-        imageUrl: textbooks[5].imageUrl,
+        imageUrl: requireSeedImage(textbooks[5]),
         status: ListingStatus.SOLD
       }
     })

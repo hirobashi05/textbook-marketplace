@@ -88,7 +88,7 @@ export function PurchasePage() {
 
         <div className="mt-6 grid gap-4 rounded-lg border border-line bg-slate-50 p-4 sm:grid-cols-[160px_1fr]">
           <img
-            src={listing.imageUrl || listing.textbook.imageUrl}
+            src={listing.imageUrl || listing.textbook.imageUrl || undefined}
             alt={`${listing.textbook.title}の商品画像`}
             className="h-44 w-full rounded-lg object-cover"
           />

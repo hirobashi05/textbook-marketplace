@@ -359,7 +359,7 @@ function TransactionCard({
 function ProductImage({ listing }: { listing: Listing }) {
   return (
     <img
-      src={listing.imageUrl || listing.textbook.imageUrl}
+      src={listing.imageUrl || listing.textbook.imageUrl || undefined}
       alt={`${listing.textbook.title}の商品画像`}
       className="h-28 w-full rounded-lg object-cover sm:w-24"
     />

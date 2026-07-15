@@ -81,7 +81,7 @@ export function ListingDetailPage() {
         <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="bg-slate-100">
             <img
-              src={listing.imageUrl || listing.textbook.imageUrl}
+              src={listing.imageUrl || listing.textbook.imageUrl || undefined}
               alt={`${listing.textbook.title}の商品画像`}
               className="h-full min-h-[320px] w-full object-cover"
             />
@@ -97,7 +97,7 @@ export function ListingDetailPage() {
             </div>
 
             <dl className="grid gap-4 sm:grid-cols-2">
-              <DetailItem label="ISBN" value={listing.textbook.isbn} />
+              <DetailItem label="ISBN" value={listing.textbook.isbn ?? "未登録"} />
               <DetailItem label="出版社" value={listing.textbook.publisher} />
               <DetailItem label="定価" value={yen(listing.textbook.listPrice)} />
               <DetailItem label="対象学年" value={`${listing.textbook.academicYear}年`} />

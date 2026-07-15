@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: keio-textbook-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm run prisma:generate && pnpm run build
+    startCommand: pnpm run turso:migrate && pnpm run start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: UPLOAD_STORAGE
+        value: data_url
+      - key: JWT_SECRET
+        generateValue: true
+      - key: UNIVERSITY_EMAIL_DOMAINS
+        value: keio.jp,keio.ac.jp,*.keio.ac.jp
+      - key: CORS_ORIGIN
+        fromService:
+          type: web
+          name: keio-textbook-market
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: keio-textbook-market
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    autoDeployTrigger: commit
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: keio-textbook-api
+          envVarKey: RENDER_EXTERNAL_URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

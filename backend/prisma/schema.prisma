@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE    @map("active")
+  SUSPENDED @map("suspended")
+  DELETED   @map("deleted")
+}
+
+enum ListingCondition {
+  NEW         @map("new")
+  GOOD        @map("good")
+  FAIR        @map("fair")
+  POOR        @map("poor")
+  HAS_WRITING @map("has_writing")
+}
+
+enum ListingStatus {
+  AVAILABLE @map("available")
+  SOLD      @map("sold")
+  CANCELLED @map("cancelled")
+}
+
+enum OrderStatus {
+  CREATED   @map("created")
+  PAID      @map("paid")
+  CANCELLED @map("cancelled")
+}
+
+enum TransactionStatus {
+  PURCHASED                    @map("purchased")
+  AWAITING_SELLER_CONFIRMATION @map("awaiting_seller_confirmation")
+  PREPARING_SHIPMENT           @map("preparing_shipment")
+  SHIPPED                      @map("shipped")
+  COMPLETED                    @map("completed")
+  CANCELLATION_REQUESTED       @map("cancellation_requested")
+}
+
+enum PointPurchaseStatus {
+  CREATED   @map("created")
+  PAID      @map("paid")
+  CANCELLED @map("cancelled")
+}
+
+enum PointTransactionType {
+  POINT_PURCHASE      @map("point_purchase")
+  TEXTBOOK_PURCHASE   @map("textbook_purchase")
+  TEXTBOOK_SALE       @map("textbook_sale")
+  CANCELLATION_REFUND @map("cancellation_refund")
+  ADMIN_ADJUSTMENT    @map("admin_adjustment")
+}
+
+model User {
+  uid           String     @id @default(cuid())
+  email         String     @unique
+  name          String
+  passwordHash  String
+  paymentMethod String?
+  points        Int        @default(0)
+  userStatus    UserStatus @default(ACTIVE)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  listings Listing[] @relation("SellerListings")
+  orders   Order[]   @relation("BuyerOrders")
+  pointPurchases  PointPurchase[]
+  pointTransactions PointTransaction[]
+  paymentSetting PaymentSetting?
+
+  @@map("users")
+}
+
+model PaymentSetting {
+  userId                  String   @id
+  preferredMethod         String   @default("credit_card")
+  cardHolderName          String?
+  cardBrand               String?
+  cardLast4               String?
+  cardExpiryMonth         Int?
+  cardExpiryYear          Int?
+  convenienceStoreChain   String?
+  conveniencePayerName    String?
+  conveniencePayerPhone   String?
+  updatedAt               DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [uid], onDelete: Cascade)
+
+  @@map("payment_settings")
+}
+
+model TextbookMaster {
+  id           String   @id @default(cuid())
+  isbn         String   @unique
+  title        String
+  publisher    String
+  listPrice    Int
+  courseName   String
+  faculty      String
+  department   String
+  academicYear Int
+  imageUrl     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listings Listing[]
+
+  @@index([title])
+  @@index([courseName])
+  @@index([faculty])
+  @@index([department])
+  @@map("textbook_masters")
+}
+
+model Listing {
+  id           String           @id @default(cuid())
+  sellerId     String
+  masterId     String
+  sellingPrice Int
+  condition    ListingCondition
+  description  String?
+  imageUrl     String
+  status       ListingStatus    @default(AVAILABLE)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  seller   User           @relation("SellerListings", fields: [sellerId], references: [uid])
+  textbook TextbookMaster @relation(fields: [masterId], references: [id])
+  order    Order?
+
+  @@index([sellerId])
+  @@index([masterId])
+  @@index([status])
+  @@map("listings")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  listingId       String      @unique
+  buyerId         String
+  shippingAddress String
+  shippingFee     Int
+  totalAmount     Int
+  paymentMethod   String         @default("points")
+  status          OrderStatus @default(PAID)
+  transactionStatus TransactionStatus @default(AWAITING_SELLER_CONFIRMATION)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id])
+  buyer   User    @relation("BuyerOrders", fields: [buyerId], references: [uid])
+  pointTransactions PointTransaction[]
+
+  @@index([buyerId])
+  @@index([transactionStatus])
+  @@map("orders")
+}
+
+model PointPurchase {
+  id                String              @id @default(cuid())
+  userId            String
+  amount            Int
+  paymentMethod     String
+  providerReference String?
+  status            PointPurchaseStatus @default(PAID)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  user              User               @relation(fields: [userId], references: [uid])
+  pointTransactions PointTransaction[]
+
+  @@index([userId])
+  @@map("point_purchases")
+}
+
+model PointTransaction {
+  id              String               @id @default(cuid())
+  userId          String
+  type            PointTransactionType
+  amount          Int
+  balanceAfter    Int
+  orderId         String?
+  pointPurchaseId String?
+  description     String?
+  createdAt       DateTime             @default(now())
+
+  user          User           @relation(fields: [userId], references: [uid])
+  order         Order?         @relation(fields: [orderId], references: [id])
+  pointPurchase PointPurchase? @relation(fields: [pointPurchaseId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([orderId])
+  @@index([pointPurchaseId])
+  @@map("point_transactions")
+}

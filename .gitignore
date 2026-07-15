@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.db
+*.db-journal
+coverage/
+.vite/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
